@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "C2D54198-18BA-442B-888E-2787FA0A7018",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "CheckpointTests",
+        "name" : "CheckpointTests"
+      }
+    }
+  ],
+  "version" : 1
+}
