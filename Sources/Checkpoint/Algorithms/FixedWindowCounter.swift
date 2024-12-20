@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Combine
 import Logging
 import Hummingbird
 import RediStack
@@ -27,8 +26,8 @@ public actor FixedWindowCounter {
 	// A logger set during Vapor initialization
 	public let logging: Logger?
 	
-	// The Combine Timer publishers
-	private var cancellable: AnyCancellable?
+	// The Timer
+	private var timer: Timer?
 	// Keys stored in a given time window
 	private var keys = Set<String>()
 	
@@ -37,12 +36,12 @@ public actor FixedWindowCounter {
 		self.storage = storage()
 		self.logging = logging?()
 		
-		self.cancellable = startWindow(havingDuration: self.configuration.timeWindowDuration.inSeconds,
+		self.timer = startWindow(havingDuration: self.configuration.timeWindowDuration.inSeconds,
 									   performing: resetWindow)
 	}
 	
 	deinit {
-		cancellable?.cancel()
+		timer?.invalidate()
 	}
 }
 

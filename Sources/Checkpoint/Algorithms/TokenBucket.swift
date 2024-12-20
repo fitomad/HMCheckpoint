@@ -5,7 +5,7 @@
 //  Created by Adolfo Vera Blasco on 11/12/24.
 //
 
-import Combine
+import Foundation
 import Logging
 import Hummingbird
 import RediStack
@@ -22,7 +22,7 @@ public actor TokenBucket {
 	public let storage: RedisConnectionPool
 	public let logging: Logger?
 	
-	private var cancellable: AnyCancellable?
+	private var timer: Timer?
 	private var keys = Set<String>()
 	
 	public init(configuration: () -> TokenBucketConfiguration, storage: StorageAction, logging: LoggerAction? = nil) {
@@ -30,12 +30,12 @@ public actor TokenBucket {
 		self.storage = storage()
 		self.logging = logging?()
 		
-		self.cancellable = startWindow(havingDuration: self.configuration.refillTimeInterval.inSeconds,
+		self.timer = startWindow(havingDuration: self.configuration.refillTimeInterval.inSeconds,
 									   performing: resetWindow)
 	}
 	
 	deinit {
-		cancellable?.cancel()
+		timer?.invalidate()
 	}
 	
 	private func preparaStorageFor(key: RedisKey) async {
