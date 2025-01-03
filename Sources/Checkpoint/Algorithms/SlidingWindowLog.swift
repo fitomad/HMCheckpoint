@@ -41,7 +41,7 @@ public actor SlidingWindowLog {
 extension SlidingWindowLog: Algorithm {	
 	public func checkRequest(_ request: Request) async throws {
 		guard let apiKey = try? valueFor(field: configuration.appliedField, in: request, inside: configuration.scope) else {
-			throw HTTPError(.unauthorized, message: Checkpoint.HTTPErrorDescription.unauthorized)
+			throw HTTPError(.unauthorized, message: HTTPErrorDescription.unauthorized)
 		}
 		
 		let redisKey = RedisKey(apiKey)

@@ -24,7 +24,7 @@ struct SlidingWindowLogTests {
 																		  windowDuration: .minutes(count: 2))
 		
 		let slidingWindowLog = try makeSlidingWindowLogWith(configuration: slidingWindowLogConfiguration)
-		let checkpoint = Checkpoint(using: slidingWindowLog)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: slidingWindowLog)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -62,7 +62,7 @@ struct SlidingWindowLogTests {
 																		  appliedTo: .header(key: "X-ApiKey"))
 		
 		let slidingWindowLog = try makeSlidingWindowLogWith(configuration: slidingWindowLogConfiguration)
-		let checkpoint = Checkpoint(using: slidingWindowLog)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: slidingWindowLog)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -101,7 +101,7 @@ struct SlidingWindowLogTests {
 																		  inside: .endpoint)
 		
 		let slidingWindowLog = try makeSlidingWindowLogWith(configuration: slidingWindowLogConfiguration)
-		let checkpoint = Checkpoint(using: slidingWindowLog)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: slidingWindowLog)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -140,7 +140,7 @@ struct SlidingWindowLogTests {
 																		  inside: .endpoint)
 		
 		let slidingWindowLog = try makeSlidingWindowLogWith(configuration: slidingWindowLogConfiguration)
-		let checkpoint = Checkpoint(using: slidingWindowLog)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: slidingWindowLog)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -179,7 +179,7 @@ struct SlidingWindowLogTests {
 																		  windowDuration: .minutes(count: 2),
 																		  inside: .endpoint)
 		let slidingWindowLog = try makeSlidingWindowLogWith(configuration: slidingWindowLogConfiguration)
-		let checkpoint = Checkpoint(using: slidingWindowLog)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: slidingWindowLog)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)

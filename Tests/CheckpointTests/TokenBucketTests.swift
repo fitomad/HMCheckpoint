@@ -25,10 +25,9 @@ struct TokenBucketTests {
 														  refillTimeInterval: .seconds(count: 20))
 		
 		let tokenBucket = try makeTokenBucketWith(configuration: basicConfiguration)
-		let checkpoint = Checkpoint(using: tokenBucket)
 		
 		let router = Router()
-		router.add(middleware: checkpoint)
+		router.add(middleware: Checkpoint(using: tokenBucket))
 		
 		router.get(Constants.endpointRouterPath) { _, context in
 			return "I'm not a teapot (yet)"
@@ -64,10 +63,9 @@ struct TokenBucketTests {
 														   appliedTo: .header(key: "X-ApiKey"))
 		
 		let tokenBucket = try makeTokenBucketWith(configuration: headerConfiguration)
-		let checkpoint = Checkpoint(using: tokenBucket)
 		
 		let router = Router()
-		router.add(middleware: checkpoint)
+		router.add(middleware: Checkpoint(using: tokenBucket))
 		
 		router.get(Constants.endpointRouterPath) { _, context in
 			return "I'm not a teapot (yet)"
@@ -104,10 +102,9 @@ struct TokenBucketTests {
 																	inside: .endpoint)
 		
 		let tokenBucket = try makeTokenBucketWith(configuration: scopedTokenConfiguration)
-		let checkpoint = Checkpoint(using: tokenBucket)
 		
 		let router = Router()
-		router.add(middleware: checkpoint)
+		router.add(middleware: Checkpoint(using: tokenBucket))
 		
 		router.get(Constants.endpointRouterPath) { _, context in
 			return "I'm not a teapot (yet)"
@@ -145,14 +142,14 @@ struct TokenBucketTests {
 		
 		
 		let tokenBucket = try makeTokenBucketWith(configuration: tokenConfiguration)
-		let checkpoint = Checkpoint(using: tokenBucket)
+		
+		let checkpoint = Checkpoint<BasicRequestContext>(using: tokenBucket)
 		
 		checkpoint.didFailWithTooManyRequest = { (request, response, metadata) in
 			metadata.headers = [
 				"X-RateLimit" : "Failure for request \(request.description)"
 			]
 		}
-		
 		
 		let router = Router()
 		router.add(middleware: checkpoint)

@@ -25,7 +25,7 @@ struct FixedWindowCounterTests {
 		
 		
 		let fixedWindowCounter = try makeFixedWindowCounterWith(configuration: fixedWindowConfiguration)
-		let checkpoint = Checkpoint(using: fixedWindowCounter)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: fixedWindowCounter)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -64,7 +64,7 @@ struct FixedWindowCounterTests {
 		
 		
 		let fixedWindowCounter = try makeFixedWindowCounterWith(configuration: fixedConfiguration)
-		let checkpoint = Checkpoint(using: fixedWindowCounter)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: fixedWindowCounter)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -104,7 +104,7 @@ struct FixedWindowCounterTests {
 		
 		
 		let fixedWindowCounter = try makeFixedWindowCounterWith(configuration: fixedConfiguration)
-		let checkpoint = Checkpoint(using: fixedWindowCounter)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: fixedWindowCounter)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -144,7 +144,7 @@ struct FixedWindowCounterTests {
 		
 		
 		let fixedWindowCounter = try makeFixedWindowCounterWith(configuration: fixedWindowConfiguration)
-		let checkpoint = Checkpoint(using: fixedWindowCounter)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: fixedWindowCounter)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -182,7 +182,7 @@ struct FixedWindowCounterTests {
 																	   inside: .endpoint)
 		
 		let fixedWindowCounter = try makeFixedWindowCounterWith(configuration: fixedWindowConfiguration)
-		let checkpoint = Checkpoint(using: fixedWindowCounter)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: fixedWindowCounter)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)

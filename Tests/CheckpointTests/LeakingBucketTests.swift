@@ -25,7 +25,7 @@ struct LeakingBucketTests {
 																	removingTimeInterval: .minutes(count: 1))
 		
 		let leakingBucket = try makeLeakingBucketWith(configuration: leakingBucketConfiguration)
-		let checkpoint = Checkpoint(using: leakingBucket)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: leakingBucket)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -64,7 +64,7 @@ struct LeakingBucketTests {
 																	appliedTo: .header(key: "X-ApiKey"))
 		
 		let leakingBucket = try makeLeakingBucketWith(configuration: leakingBucketConfiguration)
-		let checkpoint = Checkpoint(using: leakingBucket)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: leakingBucket)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -104,7 +104,7 @@ struct LeakingBucketTests {
 																	inside :.endpoint)
 		
 		let leakingBucket = try makeLeakingBucketWith(configuration: leakingBucketConfiguration)
-		let checkpoint = Checkpoint(using: leakingBucket)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: leakingBucket)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -144,7 +144,7 @@ struct LeakingBucketTests {
 																	inside :.endpoint)
 		
 		let leakingBucket = try makeLeakingBucketWith(configuration: leakingBucketConfiguration)
-		let checkpoint = Checkpoint(using: leakingBucket)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: leakingBucket)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -184,7 +184,7 @@ struct LeakingBucketTests {
 																	removingTimeInterval: .minutes(count: 1),
 																	inside: .endpoint)
 		let leakingBucket = try makeLeakingBucketWith(configuration: leakingBucketConfiguration)
-		let checkpoint = Checkpoint(using: leakingBucket)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: leakingBucket)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
