@@ -21,7 +21,7 @@ import Hummingbird
 */
 public actor LeakingBucket {
 	private let configuration: LeakingBucketConfiguration
-	public let storage: RedisConnectionPool
+	public let storage: PersistDriver
 	public let logging: Logger?
 	
 	private var timer: Timer?
@@ -38,14 +38,6 @@ public actor LeakingBucket {
 	deinit {
 		timer?.invalidate()
 	}
-	
-	private func preparaStorageFor(key: RedisKey) async {
-		do {
-			try await storage.set(key, to: 0).get()
-		} catch let redisError {
-			logging?.error("🚨 Problem setting key \(key.rawValue) to value \(configuration.bucketSize): \(redisError.localizedDescription)")
-		}
-	}
 }
 
 extension LeakingBucket: WindowBasedAlgorithm {
@@ -55,19 +47,21 @@ extension LeakingBucket: WindowBasedAlgorithm {
 		}
 		
 		keys.insert(requestKey)
-		let redisKey = RedisKey(requestKey)
 		
-		let keyExists = try await storage.exists(redisKey).get()
+		let tokenList = try await storage.get(key: requestKey, as: TokenList.self) ?? TokenList()
 		
-		if keyExists == 0 {
-			await preparaStorageFor(key: redisKey)
-		}
+		// 1. New request, add one token to the bucket
+		await tokenList.addToken()
 		
-		// 1. New request, remove one token from the bucket
-		let bucketItemsCount = try await storage.increment(redisKey).get()
 		// 2. If buckes is empty, throw an error
-		if bucketItemsCount > configuration.bucketSize {
+		if await tokenList.count > configuration.bucketSize {
 			throw HTTPError(.tooManyRequests)
+		} else {
+			do {
+				try await storage.set(key: requestKey, value: tokenList)
+			} catch let persistentError {
+				logging?.error("🚨 Problem setting key \(requestKey) to value \(configuration.bucketSize): \(persistentError.localizedDescription)")
+			}
 		}
 	}
 	
@@ -76,15 +70,15 @@ extension LeakingBucket: WindowBasedAlgorithm {
 			Task(priority: .userInitiated) {
 				let redisKey = RedisKey(key)
 				
-				let respValue = try await storage.get(redisKey).get()
-			
-				var newBucketSize = 0
-				
-				if let currentBucketSize = respValue.int {
-					newBucketSize = currentBucketSize < configuration.tokenRemovingRate ? 0 : (currentBucketSize - configuration.tokenRemovingRate)
+				if let tokenList = try await storage.get(key: key, as: TokenList.self) {
+					var newBucketSize = 0
+					let currentTokenListCount = await tokenList.count
+					
+					let deleteTokensCount = currentTokenListCount < configuration.tokenRemovingRate ? 0 : (currentTokenListCount - configuration.tokenRemovingRate)
+					
+					await tokenList.removeTokens(count: deleteTokensCount)
+					try await storage.set(key: key, value: tokenList)
 				}
-				
-				_ = try await storage.decrement(redisKey, by: newBucketSize).get()
 			}
 		}
 	}

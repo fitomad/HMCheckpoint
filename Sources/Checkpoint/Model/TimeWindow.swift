@@ -12,14 +12,14 @@ public enum TimeWindow: Sendable {
 	case minutes(count: Int = 1)
 	case hours(count: Int = 1)
 	
-	var inSeconds: TimeInterval {
+	var inSeconds: Int {
 		switch self {
 			case .seconds(let count):
-				return Double(count)
+				return count
 			case .minutes(let count):
-				return Double(count * 60)
+				return count * 60
 			case .hours(let count):
-				return Double(count * 60 * 60)
+				return count * 60 * 60
 		}
 	}
 }

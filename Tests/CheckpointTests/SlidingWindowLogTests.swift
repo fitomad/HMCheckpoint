@@ -18,7 +18,7 @@ import HTTPTypes
 
 @Suite("Sliding Window Log tests suite.")
 struct SlidingWindowLogTests {
-	@Test("", .tags(.slidingWindowLog))
+	@Test("Sliding Window Log // General", .tags(.slidingWindowLog))
 	func testSlidingWindowLog() throws {
 		let slidingWindowLogConfiguration = SlidingWindowLogConfiguration(requestPerWindow: 10,
 																		  windowDuration: .minutes(count: 2))
@@ -228,17 +228,10 @@ extension SlidingWindowLogTests {
 	}
 	
 	private func makeSlidingWindowLogWith(configuration: SlidingWindowLogConfiguration) throws -> SlidingWindowLog {
-		let redis = try #require(
-			try? RedisConnectionPoolService(
-				RedisConfiguration(hostname: "localhost", port: 6379),
-				logger: Logger(label: "Redis.SlidingWindowLogTests")
-			)
-		)
-		
 		let slidingWindowLogAlgorithm = SlidingWindowLog {
 			configuration
 		} storage: {
-			redis.pool
+			MemoryPersistDriver()
 		} logging: {
 			Logger(label: "tests./sliding_window_log")
 		}

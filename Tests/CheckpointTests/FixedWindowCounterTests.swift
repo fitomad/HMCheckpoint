@@ -18,7 +18,7 @@ import HTTPTypes
 
 @Suite("Fixed Window Counter tests suite.")
 struct FixedWindowCounterTests {
-	@Test("", .tags(.fixedWindowCounter))
+	@Test("Fixed Window Counter // General test", .tags(.fixedWindowCounter))
 	func testFixedWindowCounter() async throws {
 		let fixedWindowConfiguration = FixedWindowCounterConfiguration(requestPerWindow: 10,
 																	   timeWindowDuration: .minutes(count: 2))
@@ -56,7 +56,7 @@ struct FixedWindowCounterTests {
 		}
 	}
 	
-	@Test("HTTP Header", .tags(.fixedWindowCounter))
+	@Test("Fixed Window Counter // HTTP Header", .tags(.fixedWindowCounter))
 	func testFixedWindowCounterWithHeader() throws {
 		let fixedConfiguration = FixedWindowCounterConfiguration(requestPerWindow: 10,
 																 timeWindowDuration: .minutes(count: 2),
@@ -95,7 +95,7 @@ struct FixedWindowCounterTests {
 		}
 	}
 	
-	@Test("", .tags(.fixedWindowCounter))
+	@Test("Fixed Window Counter // Scope Header (API)", .tags(.fixedWindowCounter))
 	func testFixedWindowCounterScopeApiWithHeader() throws {
 		let fixedConfiguration = FixedWindowCounterConfiguration(requestPerWindow: 10,
 																 timeWindowDuration: .minutes(count: 2),
@@ -135,7 +135,7 @@ struct FixedWindowCounterTests {
 		}
 	}
 	
-	@Test("", .tags(.fixedWindowCounter))
+	@Test("Fixed Window Counter // Response", .tags(.fixedWindowCounter))
 	func testFixedWindowCounterResponse() throws {
 		let fixedWindowConfiguration = FixedWindowCounterConfiguration(requestPerWindow: 10,
 																	   timeWindowDuration: .minutes(count: 2),
@@ -175,7 +175,7 @@ struct FixedWindowCounterTests {
 		}
 	}
 	
-	@Test("", .tags(.fixedWindowCounter))
+	@Test("Fixed Window Counter // Scope Header", .tags(.fixedWindowCounter))
 	func testFixedWindowCounterWithScopeHeader() throws {
 		let fixedWindowConfiguration = FixedWindowCounterConfiguration(requestPerWindow: 10,
 																	   timeWindowDuration: .minutes(count: 2),
@@ -231,17 +231,10 @@ extension FixedWindowCounterTests {
 	}
 	
 	private func makeFixedWindowCounterWith(configuration: FixedWindowCounterConfiguration) throws -> FixedWindowCounter {
-		let redis = try #require(
-			try? RedisConnectionPoolService(
-				RedisConfiguration(hostname: "localhost", port: 6379),
-				logger: Logger(label: "Redis.FixedWindowCounterTests")
-			)
-		)
-		
 		let tokenbucketAlgorithm = FixedWindowCounter {
 			configuration
 		} storage: {
-			return redis.pool
+			MemoryPersistDriver()
 		} logging: {
 			Logger(label: "tests./fixed_window_counter")
 		}

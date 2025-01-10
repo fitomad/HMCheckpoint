@@ -233,17 +233,10 @@ extension LeakingBucketTests {
 	}
 	
 	private func makeLeakingBucketWith(configuration: LeakingBucketConfiguration) throws -> LeakingBucket {
-		let redis = try #require(
-			try? RedisConnectionPoolService(
-				RedisConfiguration(hostname: "localhost", port: 6379),
-				logger: Logger(label: "Redis.LeakingBucketests")
-			)
-		)
-		
 		let leakingBucketAlgorithm = LeakingBucket {
 			configuration
 		} storage: {
-			redis.pool
+			MemoryPersistDriver()
 		} logging: {
 			Logger(label: "tests./leaking_bucket")
 		}

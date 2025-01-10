@@ -21,7 +21,7 @@ let tokenBucket = TokenBucket {
 		logger: Logger(label: "Redis.RateLimit.Checkpoint")
 	)
 	
-	return redis.pool
+	return RedisPersistDriver(redisConnectionPoolService: redis)
 } logging: {
 	Logger(label: "RateLimit.Checkpoint")
 }
@@ -69,7 +69,7 @@ let tokenbucketAlgorithm = TokenBucket {
 		logger: Logger(label: "Redis.RateLimit.Checkpoint")
 	)
 	
-	return redis.pool
+	return RedisPersistDriver(redisConnectionPoolService: redis)
 } logging: {
 	Logger(label: "RateLimit.Checkpoint")
 }
@@ -116,7 +116,7 @@ let leakingBucketAlgorithm = LeakingBucket {
 		logger: Logger(label: "Redis.RateLimit.Checkpoint")
 	)
 	
-	return redis.pool
+	return RedisPersistDriver(redisConnectionPoolService: redis)
 } logging: {
 	Logger(label: "RateLimit.Checkpoint")
 }
@@ -162,7 +162,7 @@ let fixedWindowAlgorithm = FixedWindowCounter {
 		logger: Logger(label: "Redis.RateLimit.Checkpoint")
 	)
 	
-	return redis.pool
+	return RedisPersistDriver(redisConnectionPoolService: redis)
 } logging: {
 	Logger(label: "RateLimit.Checkpoint")
 }
@@ -210,7 +210,7 @@ let slidingWindowLogAlgorith = SlidingWindowLog {
 		logger: Logger(label: "Redis.RateLimit.Checkpoint")
 	)
 	
-	return redis.pool
+	return RedisPersistDriver(redisConnectionPoolService: redis)
 } logging: {
 	Logger(label: "RateLimit.Checkpoint")
 }
@@ -256,6 +256,7 @@ public var willCheck: CheckpointAction?
 ```
 
 ### Rate-Limit reached
+
 It's sure you want to know when a request reaches the rate limit you set when initializing Checkpoint.
 
 In this case, Checkpoint will notify a rate-limit reached using the didFailWithTooManyRequest closure.
@@ -300,13 +301,17 @@ checkpoint.didFail = { (request, response, abort, metadata) in
 
 The parameters used in this closure are the same as the ones received in the closure, you can add a custom HTTP header and/or a reason message.
 
-## Redis
-
-To work with Checkpoint you must install and configure a Redis database in your system. Thanks to Docker it's really easy to deploy a Redis installation.
-
-We recommend to install the [**redis-stack-server**](https://hub.docker.com/r/redis/redis-stack-server) image from the Docker Hub.
-
 ## History
+
+### 0.3.0
+
+- Adopt the [Persistent Data](https://docs.hummingbird.codes/2.0/documentation/hummingbird/persistentdata) framework as storage system for the different rate-limit algorhitms. 
+- `Checkpoint` can work with `RequestContext` context, so you can apply rate-limit for the current available Hummingbird context types or with your custom types.
+- Tests now adopts the `MemoryPersistDriver` storage driver instead of Redis driver. No need to run a Docker container with a Redis image to run tests.
+
+### 0.2.0
+
+- Removing `Combine` framework. Now Checkpoint is Linux ready.
 
 ### 0.1.0
 

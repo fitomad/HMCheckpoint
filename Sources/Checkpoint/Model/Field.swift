@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum Field: Sendable {
+public enum Field: Codable, Sendable {
 	case header(key: String)
 	case queryItem(key: String)
 	case noField

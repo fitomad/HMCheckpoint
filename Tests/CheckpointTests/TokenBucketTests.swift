@@ -198,17 +198,10 @@ extension TokenBucketTests {
 	}
 	
 	private func makeTokenBucketWith(configuration: TokenBucketConfiguration) throws -> TokenBucket {
-		let testRedisConfiguration = try #require(try RedisConfiguration(hostname: "localhost", port: 6379))
-		
 		let tokenbucketAlgorithm = TokenBucket {
 			configuration
 		} storage: {
-			let redis = RedisConnectionPoolService(
-					testRedisConfiguration,
-					logger: Logger(label: "Redis.TokenBucketTests")
-			)
-			
-			return redis.pool
+			MemoryPersistDriver()
 		} logging: {
 			Logger(label: "tests./token_bucket")
 		}

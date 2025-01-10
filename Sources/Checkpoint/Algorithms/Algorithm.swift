@@ -5,12 +5,12 @@
 //  Created by Adolfo Vera Blasco on 11/12/24.
 //
 
+import Foundation
+
 import Hummingbird
-import RediStack
 import Logging
 
-
-public typealias StorageAction = () -> RedisConnectionPool
+public typealias StorageAction = () -> PersistDriver
 public typealias LoggerAction = () -> Logger
 
 /// Definition for the different Rate-Limit algorithims
@@ -19,8 +19,8 @@ public protocol Algorithm: Sendable {
 	associatedtype ConfigurationType
 	
 	/// The Redis database used to store the request data
-	var storage: RedisConnectionPool { get }
-	/// A Logger` object created on Vapor
+	var storage: PersistDriver { get }
+	/// A Logger` object created on Hummigbird
 	var logging: Logger? { get }
 	
 	/// Create a new Rate-Limit algorithim with a given configuration,
