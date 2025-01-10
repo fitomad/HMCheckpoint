@@ -5,14 +5,6 @@
 //  Created by Adolfo Vera Blasco on 11/12/24.
 //
 
-
-//
-//  TokenBucketConfiguration.swift
-//  
-//
-//  Created by Adolfo Vera Blasco on 25/6/24.
-//
-
 import Foundation
 
 public struct TokenBucketConfiguration: Configuration {

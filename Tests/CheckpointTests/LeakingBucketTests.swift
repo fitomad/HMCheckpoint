@@ -25,7 +25,7 @@ struct LeakingBucketTests {
 																	removingTimeInterval: .minutes(count: 1))
 		
 		let leakingBucket = try makeLeakingBucketWith(configuration: leakingBucketConfiguration)
-		let checkpoint = Checkpoint(using: leakingBucket)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: leakingBucket)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -64,7 +64,7 @@ struct LeakingBucketTests {
 																	appliedTo: .header(key: "X-ApiKey"))
 		
 		let leakingBucket = try makeLeakingBucketWith(configuration: leakingBucketConfiguration)
-		let checkpoint = Checkpoint(using: leakingBucket)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: leakingBucket)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -104,7 +104,7 @@ struct LeakingBucketTests {
 																	inside :.endpoint)
 		
 		let leakingBucket = try makeLeakingBucketWith(configuration: leakingBucketConfiguration)
-		let checkpoint = Checkpoint(using: leakingBucket)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: leakingBucket)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -144,7 +144,7 @@ struct LeakingBucketTests {
 																	inside :.endpoint)
 		
 		let leakingBucket = try makeLeakingBucketWith(configuration: leakingBucketConfiguration)
-		let checkpoint = Checkpoint(using: leakingBucket)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: leakingBucket)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -184,7 +184,7 @@ struct LeakingBucketTests {
 																	removingTimeInterval: .minutes(count: 1),
 																	inside: .endpoint)
 		let leakingBucket = try makeLeakingBucketWith(configuration: leakingBucketConfiguration)
-		let checkpoint = Checkpoint(using: leakingBucket)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: leakingBucket)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -233,17 +233,10 @@ extension LeakingBucketTests {
 	}
 	
 	private func makeLeakingBucketWith(configuration: LeakingBucketConfiguration) throws -> LeakingBucket {
-		let redis = try #require(
-			try? RedisConnectionPoolService(
-				RedisConfiguration(hostname: "localhost", port: 6379),
-				logger: Logger(label: "Redis.LeakingBucketests")
-			)
-		)
-		
 		let leakingBucketAlgorithm = LeakingBucket {
 			configuration
 		} storage: {
-			redis.pool
+			MemoryPersistDriver()
 		} logging: {
 			Logger(label: "tests./leaking_bucket")
 		}

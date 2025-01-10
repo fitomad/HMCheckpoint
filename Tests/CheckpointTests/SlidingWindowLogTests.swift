@@ -18,13 +18,13 @@ import HTTPTypes
 
 @Suite("Sliding Window Log tests suite.")
 struct SlidingWindowLogTests {
-	@Test("", .tags(.slidingWindowLog))
+	@Test("Sliding Window Log // General", .tags(.slidingWindowLog))
 	func testSlidingWindowLog() throws {
 		let slidingWindowLogConfiguration = SlidingWindowLogConfiguration(requestPerWindow: 10,
 																		  windowDuration: .minutes(count: 2))
 		
 		let slidingWindowLog = try makeSlidingWindowLogWith(configuration: slidingWindowLogConfiguration)
-		let checkpoint = Checkpoint(using: slidingWindowLog)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: slidingWindowLog)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -62,7 +62,7 @@ struct SlidingWindowLogTests {
 																		  appliedTo: .header(key: "X-ApiKey"))
 		
 		let slidingWindowLog = try makeSlidingWindowLogWith(configuration: slidingWindowLogConfiguration)
-		let checkpoint = Checkpoint(using: slidingWindowLog)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: slidingWindowLog)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -101,7 +101,7 @@ struct SlidingWindowLogTests {
 																		  inside: .endpoint)
 		
 		let slidingWindowLog = try makeSlidingWindowLogWith(configuration: slidingWindowLogConfiguration)
-		let checkpoint = Checkpoint(using: slidingWindowLog)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: slidingWindowLog)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -140,7 +140,7 @@ struct SlidingWindowLogTests {
 																		  inside: .endpoint)
 		
 		let slidingWindowLog = try makeSlidingWindowLogWith(configuration: slidingWindowLogConfiguration)
-		let checkpoint = Checkpoint(using: slidingWindowLog)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: slidingWindowLog)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -179,7 +179,7 @@ struct SlidingWindowLogTests {
 																		  windowDuration: .minutes(count: 2),
 																		  inside: .endpoint)
 		let slidingWindowLog = try makeSlidingWindowLogWith(configuration: slidingWindowLogConfiguration)
-		let checkpoint = Checkpoint(using: slidingWindowLog)
+		let checkpoint = Checkpoint<BasicRequestContext>(using: slidingWindowLog)
 		
 		let router = Router()
 		router.add(middleware: checkpoint)
@@ -228,17 +228,10 @@ extension SlidingWindowLogTests {
 	}
 	
 	private func makeSlidingWindowLogWith(configuration: SlidingWindowLogConfiguration) throws -> SlidingWindowLog {
-		let redis = try #require(
-			try? RedisConnectionPoolService(
-				RedisConfiguration(hostname: "localhost", port: 6379),
-				logger: Logger(label: "Redis.SlidingWindowLogTests")
-			)
-		)
-		
 		let slidingWindowLogAlgorithm = SlidingWindowLog {
 			configuration
 		} storage: {
-			redis.pool
+			MemoryPersistDriver()
 		} logging: {
 			Logger(label: "tests./sliding_window_log")
 		}

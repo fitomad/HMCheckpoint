@@ -22,8 +22,8 @@ public actor FixedWindowCounter {
 	// Configuration for this rate-limit algorithm
 	private let configuration: FixedWindowCounterConfiguration
 	// The Redis database where we store the request information
-	public let storage: RedisConnectionPool
-	// A logger set during Vapor initialization
+	public let storage: PersistDriver
+	// A logger set during Hummigbird initialization
 	public let logging: Logger?
 	
 	// The Timer
@@ -53,25 +53,33 @@ extension FixedWindowCounter: WindowBasedAlgorithm {
 		
 		keys.insert(requestKey)
 		
-		let redisKey = RedisKey(requestKey)
-		let timestamp = Date().timeIntervalSince1970
+		var currentTokenListCount = 1
 		
-		let requestCount = try await storage.rpush([ timestamp ], into: redisKey).get()
+		if let tokenList = try await storage.get(key: requestKey, as: TokenList.self) {
+			await tokenList.addToken()
+			currentTokenListCount = await tokenList.count
+			
+			try await storage.set(key: requestKey, value: tokenList)
+		} else {
+			let newTokenList = TokenList()
+			await newTokenList.addToken()
+			
+			try await storage.set(key: requestKey, value: newTokenList)
+		}
 		
-		if requestCount > configuration.requestPerWindow {
+		if currentTokenListCount > configuration.requestPerWindow {
 			throw HTTPError(.tooManyRequests)
 		}
+		
 	}
 	
 	public func resetWindow() {
 		keys.forEach { key in
-			let redisKey = RedisKey(key)
-	
 			Task {
 				do {
-					_ = try	await storage.delete(redisKey).get()
-				} catch let redisError {
-					logging?.error("🚨 Error deleting key \(key): \(redisError.localizedDescription)")
+					try	await storage.remove(key: key)
+				} catch let persistentError {
+					logging?.error("🚨 Error deleting key \(key): \(persistentError.localizedDescription)")
 				}
 			}
 		}

@@ -5,14 +5,6 @@
 //  Created by Adolfo Vera Blasco on 11/12/24.
 //
 
-
-//
-//  SlidingWindowLogConfiguration.swift
-//  
-//
-//  Created by Adolfo Vera Blasco on 25/6/24.
-//
-
 import Foundation
 
 public struct SlidingWindowLogConfiguration: Configuration {

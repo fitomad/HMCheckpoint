@@ -21,16 +21,16 @@ public actor SlidingWindowLog {
 	/// Configuration for the Sliding Window Log
 	private let configuration: SlidingWindowLogConfiguration
 	/// Redis database where we store the request timestamps
-	public let storage: RedisConnectionPool
-	/// A Vapor logger object
+	public let storage: PersistDriver
+	/// A Hummigbird logger object
 	public let logging: Logger?
 	
 	/// Create a new Sliging Window Log with a given configuration, storage and a logger
 	///
 	/// - Parameters:
 	/// - configuration: A `SlidingWindowLogConfiguration` object
-	/// - storage: The Redis database instance created on Vapor
-	/// - logging: A `Logger` object created on Vapor.
+	/// - storage: The `PersistentDriver` database instance created on Hummingbird
+	/// - logging: A `Logger` object created on Hummingbird.
 	public init(configuration: () -> SlidingWindowLogConfiguration, storage: StorageAction, logging: LoggerAction? = nil) {
 		self.configuration = configuration()
 		self.storage = storage()
@@ -41,27 +41,22 @@ public actor SlidingWindowLog {
 extension SlidingWindowLog: Algorithm {	
 	public func checkRequest(_ request: Request) async throws {
 		guard let apiKey = try? valueFor(field: configuration.appliedField, in: request, inside: configuration.scope) else {
-			throw HTTPError(.unauthorized, message: Checkpoint.HTTPErrorDescription.unauthorized)
+			throw HTTPError(.unauthorized, message: HTTPErrorDescription.unauthorized)
 		}
 		
-		let redisKey = RedisKey(apiKey)
-		
-		let requestDate = Date()
-		let outdatedRequestLimiteDate = Date().addingTimeInterval(-configuration.timeWindowDuration.inSeconds)
+		let tokenList = try await storage.get(key: apiKey, as: TokenList.self) ?? TokenList()
 		
 		// 1. Delete outdated request
-		let topBound: Double = Double(outdatedRequestLimiteDate.timeIntervalSinceReferenceDate)
-		_ = try await storage.zremrangebyscore(from: redisKey, withMaximumScoreOf: RedisZScoreBound(floatLiteral: topBound)).get()
+		await tokenList.removeTokensPrevious(to: configuration.timeWindowDuration)
 		
 		// 2. Add the current request
-		let requestTimeInterval = Double(requestDate.timeIntervalSinceReferenceDate)
-		_ = try await storage.zadd([ (element: requestTimeInterval, score: requestTimeInterval) ], to: redisKey).get()
+		await tokenList.addToken()
 		
 		// 3. Get the number of request for this time window
-		let itemsCount = try await storage.zcount(of: redisKey, withScores: 0.0...requestTimeInterval).get()
+		let timeWindowTokensCount = await tokenList.count
 		
 		// 4. If request count is greater...
-		if itemsCount > configuration.requestPerWindow {
+		if timeWindowTokensCount > configuration.requestPerWindow {
 			throw HTTPError(.tooManyRequests)
 		}
 	}
